@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+    ubuntu-server:
+        container_name: dc-vpn-l2tp-clt
+        restart: unless-stopped
+        hostname: dc-vpn-l2tp-clt
+        privileged: true
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        build:
+            context: ./build
+            dockerfile: Dockerfile.ubuntu-server
+            args:
+                IMAGE_VERSION: latest
+                VPN_NAME: <AnyVPNName>
+                VPN_SERVER_IP: <ip_address>
+                VPN_IPSEC_PSK: <PSK>
+                VPN_USER: <UserName>
+                VPN_PASSWORD: <Password>
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+        networks:
+            - dc-ub-srv
+        ports:
+            - 42088:3128
+
+networks:
+    dc-ub-srv:
+        name: dc-ub-srv
+        ipam:
+            driver: default
+            ### If need set special IP Net Address
+            #config:
+            #    - subnet: 172.16.1.0/24

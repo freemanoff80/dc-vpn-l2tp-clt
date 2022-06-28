@@ -85,11 +85,11 @@ while true;
 
                 elif [ "\`ipsec status $VPN_NAME| grep -e "$VPN_NAME".*ESTABLISHED\`" ];
                     then
-                        echo "IPSEC Connection UP"
+                        echo "+++ IPSEC Connection UP"
                         (( STAGE=2 ));
 
                 else
-                    echo "IPSEC Connection Unknown Error";
+                    echo "--- IPSEC Connection Unknown Error";
                     break;
                 fi
         fi
@@ -97,37 +97,58 @@ while true;
 
         if [ \$STAGE = 2 ]
             then
-                if [ -z "\`ip a|grep -e ^[0-9]*.*\$PPP_NAME:\`" ];
-                    then
-                        echo "c $VPN_NAME" > /var/run/xl2tpd/l2tp-control;
-                        sleep 1;
+                COUNT=0
+                while true;
+                    do
+                        if [ -z "\`ip a|grep -e ^[0-9]*.*\$PPP_NAME:\`" ];
+                            then
+                                if [ \$COUNT -eq 0 ];
+                                    then
+                                        echo "??? PPP Interface Trying To Up";
+                                        echo "c $VPN_NAME" > /var/run/xl2tpd/l2tp-control;
+                                        sleep 1;
+                                        (( COUNT++ ));
 
-                elif [ "\`ip a|grep -e ^[0-9]*.*\$PPP_NAME:\`" ];
-                    then
-                        echo "PPP Interface UP"
-                        (( STAGE=3 ));
+                                elif [ \$COUNT -gt 0 ] && [ $COUNT -le 5 ];
+                                    then
+                                        sleep 1;
+                                        (( COUNT++ ));
 
-                else
-                    echo "PPP Interface Unknown Error";
-                    break;
-                fi
+                                elif [ \$COUNT -ge 5 ];
+                                    then
+                                        echo "--- PPP Interface Timeout Error";
+                                        break;
+                                fi
+        
+                        elif [ "\`ip a|grep -e ^[0-9]*.*\$PPP_NAME:\`" ];
+                            then
+                                echo "+++ PPP Interface UP"
+                                (( STAGE=3 ));
+                                break;
+        
+                        else
+                            echo "--- PPP Interface Unknown Error";
+                            break;
+                        fi
+                    done
         fi 
 
 
         if [ \$STAGE = 3 ]
             then
-                DROUTE=\$(ip route | grep default | awk '{print \$3}');
+                DROUTE=\$(ip route | grep default | awk '{print \$3}'| grep -v ppp);
                 if [ -z "\`ip route|grep -e ^$VPN_SERVER_IP.*via.*\$DROUTE.*dev\`" ];
                     then
                         route add $VPN_SERVER_IP gw \$DROUTE;
+                        sleep 1;
 
                 elif [ "\`ip route|grep -e ^$VPN_SERVER_IP.*via.*\$DROUTE.*dev\`" ];
                     then
-                        echo "Route To VPN Server ADD";
+                        echo "+++ Route To VPN Server ADD";
                         (( STAGE=4 ));
 
                 else
-                    echo "PPP Interface Unknown Error";
+                    echo "--- Route To VPN Server Unknown Error";
                     break;
 
                 fi
@@ -144,7 +165,7 @@ while true;
                                 sleep 1;
                                 (( COUNT++ ));
                             else
-                                echo "PPP Default Route \$PPP_NAME ADD";
+                                echo "+++ PPP Default Route \$PPP_NAME ADD";
                                 (( STAGE=5 ));
                                 break;
                         fi;
@@ -153,7 +174,7 @@ while true;
 
         if [ \$STAGE = 5 ]
             then
-                echo "VPN Connection UP Done!!! ";
+                echo "+++ VPN Connection UP Done!!! ";
                 break;
 
         fi

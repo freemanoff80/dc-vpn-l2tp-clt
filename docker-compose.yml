@@ -14,11 +14,12 @@ services:
             dockerfile: Dockerfile.ubuntu-server
             args:
                 IMAGE_VERSION: latest
-                VPN_NAME: <AnyVPNName>
-                VPN_SERVER_IP: <ip_address>
-                VPN_IPSEC_PSK: <PSK>
-                VPN_USER: <UserName>
-                VPN_PASSWORD: <Password>
+                ### This VPN Args Need Change In File .env
+                VPN_NAME: $VPN_NAME
+                VPN_SERVER_IP: $VPN_SERVER_IP
+                VPN_USER: $VPN_USER
+                VPN_PASSWORD: $VPN_PASSWORD
+                VPN_IPSEC_PSK: $VPN_IPSEC_PSK
         volumes:
             - /etc/localtime:/etc/localtime:ro
         networks:

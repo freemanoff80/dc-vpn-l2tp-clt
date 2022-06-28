@@ -71,8 +71,10 @@ cat > /root/.config_files/vpn-conn-up.sh <<EOF
 PPP_NAME=ppp0
 STAGE=1
 
+echo \$(date '+%d.%m.%y-%H:%M:%S')
+
 ITERATION=0
-#while [ \$STAGE -lt 4 ];
+
 while true;
     do
 

@@ -80,12 +80,12 @@ while true;
 
         if [ \$STAGE = 1 ]
             then
-                if [ "\`ipsec status $VPN_NAME| grep -e "no match"\`" ];
+                if [ "\$(ipsec status $VPN_NAME| grep -e 'no match')" ];
                     then
                         ipsec up $VPN_NAME;
                         sleep 1;
 
-                elif [ "\`ipsec status $VPN_NAME| grep -e "$VPN_NAME".*ESTABLISHED\`" ];
+                elif [ "\$(ipsec status $VPN_NAME| grep -e '$VPN_NAME'.*ESTABLISHED)" ];
                     then
                         echo "+++ IPSEC Connection UP"
                         (( STAGE=2 ));
@@ -102,7 +102,7 @@ while true;
                 COUNT=0
                 while true;
                     do
-                        if [ -z "\`ip a|grep -e ^[0-9]*.*\$PPP_NAME:\`" ];
+                        if [ -z "\$(ip a|grep -e ^[0-9]*.*\$PPP_NAME:)" ];
                             then
                                 if [ \$COUNT -eq 0 ];
                                     then
@@ -122,7 +122,7 @@ while true;
                                         break;
                                 fi
         
-                        elif [ "\`ip a|grep -e ^[0-9]*.*\$PPP_NAME:\`" ];
+                        elif [ "\$(ip a|grep -e ^[0-9]*.*\$PPP_NAME:)" ];
                             then
                                 echo "+++ PPP Interface UP"
                                 (( STAGE=3 ));
@@ -139,12 +139,12 @@ while true;
         if [ \$STAGE = 3 ]
             then
                 DROUTE=\$(ip route | grep default | awk '{print \$3}'| grep -v ppp);
-                if [ -z "\`ip route|grep -e ^$VPN_SERVER_IP.*via.*\$DROUTE.*dev\`" ];
+                if [ -z "\$(ip route|grep -e ^$VPN_SERVER_IP.*via.*\$DROUTE.*dev)" ];
                     then
                         route add $VPN_SERVER_IP gw \$DROUTE;
                         sleep 1;
 
-                elif [ "\`ip route|grep -e ^$VPN_SERVER_IP.*via.*\$DROUTE.*dev\`" ];
+                 elif [ "\$(ip route|grep -e ^$VPN_SERVER_IP.*via.*\$DROUTE.*dev)" ];
                     then
                         echo "+++ Route To VPN Server ADD";
                         (( STAGE=4 ));
@@ -161,7 +161,7 @@ while true;
                 COUNT=0
                 while [ \$COUNT -lt 10 ];
                     do
-                        if [ -z "\`ip route|grep -e default.*\$PPP_NAME.*\`" ];
+                        if [ -z "\$(ip route|grep -e default.*\$PPP_NAME.*)" ];
                             then
                                 route add default dev \$PPP_NAME;
                                 sleep 1;
@@ -190,7 +190,7 @@ while true;
 
     done
 
-echo "Outside VPN IP is: \`wget -qO- http://ipv4.icanhazip.com\`"
+echo "Outside VPN IP is: \$(wget -qO- http://ipv4.icanhazip.com)"
 
 exit 0
 EOF
@@ -198,11 +198,16 @@ EOF
 chmod 700 /root/.config_files/vpn-conn-up.sh
 
 
+### Add run scripts in crontab
+# Script /root/.config_files/vpn-logs-rotate.sh added by build Dockerfile
+
 crontab << EOF
 SHELL=/bin/bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 */2 * * * * /root/.config_files/vpn-conn-up.sh >> /root/vpn-conn-up.log
+0 */1 * * * /root/.config_files/vpn-logs-rotate.sh
 EOF
+
 
 ### Create Script For Add Network Routes And Filewall
 

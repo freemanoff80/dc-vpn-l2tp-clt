@@ -47,7 +47,8 @@ COPY copyfiles/supervisord.conf /etc/supervisor/supervisord.conf
 
 RUN mkdir /root/.config_files
 COPY copyfiles/vpn-settings-add.sh  /root/.config_files/vpn-settings-add.sh
-
+COPY copyfiles/vpn-logs-rotate.sh   /root/.config_files/vpn-logs-rotate.sh
+RUN chmod 700 /root/.config_files/*
 
 ### Settings For StrongSwan Ipsec
 

@@ -48,11 +48,15 @@ COPY copyfiles/supervisord.conf /etc/supervisor/supervisord.conf
 RUN mkdir /root/.config_files
 COPY copyfiles/vpn-settings-add.sh  /root/.config_files/vpn-settings-add.sh
 COPY copyfiles/vpn-logs-rotate.sh   /root/.config_files/vpn-logs-rotate.sh
+COPY copyfiles/vpn-conn-up.sh       /root/.config_files/vpn-conn-up.sh
+COPY copyfiles/vpn-net-route-add.sh /root/.config_files/vpn-net-route-add.sh
 RUN chmod 700 /root/.config_files/*
+
 
 ### Settings For StrongSwan Ipsec
 
-RUN if [ -z "$VPN_NAME" ] && [ -z "$VPN_SERVER_IP" ] && [ -z "$VPN_IPSEC_PSK" ] && [ -z "$VPN_USER" ] && [ -z "$VPN_PASSWORD" ]; then \
+RUN if [ -z "$VPN_NAME" ] && [ -z "$VPN_SERVER_IP" ] && [ -z "$VPN_IPSEC_PSK" ] && [ -z "$VPN_USER" ] && [ -z "$VPN_PASSWORD" ]; \
+    then \
         echo "VPN Connection Settings Is Empty"; \
     else \
         sh /root/.config_files/vpn-settings-add.sh; \

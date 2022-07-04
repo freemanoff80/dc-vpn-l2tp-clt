@@ -43,13 +43,10 @@ supervisor
 
 
 ### Copy Settins Files For Services
-COPY copyfiles/supervisord.conf /etc/supervisor/supervisord.conf
+COPY copyfiles/supervisord.conf /etc/supervisor/
 
 RUN mkdir /root/.config_files
-COPY copyfiles/vpn-settings-add.sh  /root/.config_files/vpn-settings-add.sh
-COPY copyfiles/vpn-logs-rotate.sh   /root/.config_files/vpn-logs-rotate.sh
-COPY copyfiles/vpn-conn-up.sh       /root/.config_files/vpn-conn-up.sh
-COPY copyfiles/vpn-net-route-add.sh /root/.config_files/vpn-net-route-add.sh
+COPY copyfiles/* /root/.config_files/
 RUN chmod 700 /root/.config_files/*
 
 

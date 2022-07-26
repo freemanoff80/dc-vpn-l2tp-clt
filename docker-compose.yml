@@ -1,17 +1,14 @@
 version: '3'
 
 services:
-    ubuntu-server:
+    ubuntu:
         container_name: dc-vpn-l2tp-clt
         restart: unless-stopped
         hostname: dc-vpn-l2tp-clt
         privileged: true
-        cap_add:
-            - NET_ADMIN
-            - SYS_MODULE
         build:
             context: ./build
-            dockerfile: Dockerfile.ubuntu-server
+            dockerfile: Dockerfile.ubuntu
             args:
                 IMAGE_VERSION: latest
                 ### This VPN Args Need Change In File .env
@@ -23,13 +20,13 @@ services:
         volumes:
             - /etc/localtime:/etc/localtime:ro
         networks:
-            - dc-ub-srv
+            - dc-net
         ports:
             - 42088:3128
 
 networks:
-    dc-ub-srv:
-        name: dc-ub-srv
+    dc-net:
+        name: dc-net
         ipam:
             driver: default
             ### If need set special IP Net Address

@@ -54,6 +54,17 @@ while true;
                                 elif [ $COUNT -ge 5 ];
                                     then
                                         echo "--- PPP Interface Timeout Error";
+                                        if [ "$(ping -c 3 $VPN_SERVER_IP &>/dev/null;echo $?)" -eq 0 ];then
+                                                echo "+++ Connect To VPN_SERVER_IP "
+                                                echo "!!! Restart IPSEC And XL2TP Services";
+                                                ipsec restart;
+                                                sleep 5;
+                                                service xl2tpd restart;
+                                                sleep 5;
+                                        else
+                                                echo "--- NOT Connect To VPN_SERVER_IP "
+                                                exit 1;
+                                        fi;
                                         break;
                                 fi
         
